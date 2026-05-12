@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SortMyPC — Organise tes fichiers avec l'IA</title>
+  <meta name="description" content="SortMyPC analyse et range automatiquement tes fichiers grâce à l'intelligence artificielle. En quelques secondes, ton PC est propre." />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue: #2979FF;
+      --blue-dark: #1565C0;
+      --green: #00C853;
+      --bg: #0D1117;
+      --surface: #161B22;
+      --border: #30363D;
+      --text: #E6EDF3;
+      --muted: #8B949E;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(13,17,23,0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--blue);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-logo span { color: var(--text); }
+    .nav-cta {
+      background: var(--blue);
+      color: white;
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--blue-dark); }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(41,121,255,0.15);
+      color: var(--blue);
+      border: 1px solid rgba(41,121,255,0.3);
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, #2979FF, #00C853);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(41,121,255,0.35);
+    }
+    .btn-primary:hover {
+      background: var(--blue-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(41,121,255,0.45);
+    }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* STATS */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      padding: 2rem;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-number { font-size: 2rem; font-weight: 800; color: var(--blue); }
+    .stat-label { font-size: 0.85rem; color: var(--muted); }
+
+    /* SCREENSHOT */
+    .screenshot-section {
+      max-width: 900px;
+      margin: 2rem auto 5rem;
+      padding: 0 2rem;
+    }
+    .app-window {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .app-titlebar {
+      background: #1F2937;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #FF5F57; }
+    .dot-yellow { background: #FFBD2E; }
+    .dot-green { background: #28CA41; }
+    .app-title { margin-left: 0.5rem; font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+    .app-content {
+      padding: 1.5rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .app-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(41,121,255,0.06);
+      border: 1px solid rgba(41,121,255,0.15);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+    }
+    .folder-icon { font-size: 1.5rem; }
+    .folder-name { font-weight: 600; font-size: 0.9rem; }
+    .folder-files { font-size: 0.78rem; color: var(--muted); }
+    .folder-badge {
+      margin-left: auto;
+      background: rgba(0,200,83,0.15);
+      color: var(--green);
+      border: 1px solid rgba(0,200,83,0.25);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* HOW IT WORKS */
+    section { padding: 5rem 2rem; }
+    .section-title {
+      text-align: center;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      margin-bottom: 3rem;
+    }
+    .section-title span {
+      background: linear-gradient(135deg, #2979FF, #00C853);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .step:hover { border-color: var(--blue); }
+    .step-num {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #2979FF, #1565C0);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin: 0 auto 1rem;
+      color: white;
+    }
+    .step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .step p { font-size: 0.88rem; color: var(--muted); }
+
+    /* PRICING */
+    .pricing-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .pricing-cards {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .pricing-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      min-width: 220px;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .pricing-card:hover { border-color: var(--blue); transform: translateY(-4px); }
+    .pricing-card.featured {
+      border-color: var(--blue);
+      box-shadow: 0 0 30px rgba(41,121,255,0.2);
+    }
+    .pricing-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .pricing-price { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .pricing-price sup { font-size: 1.2rem; vertical-align: super; }
+    .pricing-per { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.2rem; }
+    .pricing-features { list-style: none; text-align: left; margin-bottom: 1.5rem; }
+    .pricing-features li {
+      font-size: 0.88rem;
+      padding: 0.3rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .pricing-features li::before { content: "✓"; color: var(--green); font-weight: 700; }
+    .free-badge {
+      background: rgba(0,200,83,0.12);
+      color: var(--green);
+      border: 1px solid rgba(0,200,83,0.25);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    /* FAQ */
+    .faq { max-width: 700px; margin: 0 auto; }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 1.2rem 0;
+    }
+    .faq-q { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .faq-a { font-size: 0.88rem; color: var(--muted); }
+
+    /* CTA FINAL */
+    .cta-section {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: radial-gradient(ellipse at center, rgba(41,121,255,0.1) 0%, transparent 70%);
+    }
+    .cta-section h2 { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800; margin-bottom: 1rem; }
+    .cta-section p { color: var(--muted); margin-bottom: 2rem; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* WINDOWS BADGE */
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">⚡ Sort<span>MyPC</span></a>
+    <a class="nav-cta" href="#download">⬇️ Télécharger gratuitement</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="badge">✨ Propulsé par Claude AI</div>
+    <h1>Range tes fichiers<br><em>en un clic</em></h1>
+    <p>SortMyPC analyse ton bureau, tes téléchargements et tes dossiers, puis les organise automatiquement grâce à l'intelligence artificielle.</p>
+    <div class="hero-buttons">
+      <a href="#download" class="btn-primary">⬇️ Télécharger — Gratuit</a>
+      <a href="#how" class="btn-secondary">Comment ça marche ?</a>
+    </div>
+    <div class="platform-badge">🪟 Windows 10 / 11</div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-number">3</div>
+      <div class="stat-label">crédits offerts</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">100</div>
+      <div class="stat-label">fichiers / crédit</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">&lt;30s</div>
+      <div class="stat-label">pour trier 300 fichiers</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">2,99€</div>
+      <div class="stat-label">par pack de 10 crédits</div>
+    </div>
+  </div>
+
+  <!-- APP MOCKUP -->
+  <div class="screenshot-section">
+    <div class="app-window">
+      <div class="app-titlebar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="app-title">SortMyPC v1.0.0</span>
+      </div>
+      <div class="app-content">
+        <div class="app-row">
+          <span class="folder-icon">📸</span>
+          <div>
+            <div class="folder-name">Photos</div>
+            <div class="folder-files">IMG_4821.jpg, DSC00134.jpg, photo_vacances.png…</div>
+          </div>
+          <span class="folder-badge">Classé ✓</span>
+        </div>
+        <div class="app-row">
+          <span class="folder-icon">📄</span>
+          <div>
+            <div class="folder-name">Documents</div>
+            <div class="folder-files">facture_2024.pdf, CV_dev.docx, rapport_final.pdf…</div>
+          </div>
+          <span class="folder-badge">Classé ✓</span>
+        </div>
+        <div class="app-row">
+          <span class="folder-icon">🎮</span>
+          <div>
+            <div class="folder-name">Jeux & Logiciels</div>
+            <div class="folder-files">setup_steam.exe, minecraft_launcher.exe…</div>
+          </div>
+          <span class="folder-badge">Classé ✓</span>
+        </div>
+        <div class="app-row">
+          <span class="folder-icon">🎵</span>
+          <div>
+            <div class="folder-name">Musique & Vidéos</div>
+            <div class="folder-files">mix_summer.mp3, clip_4k.mp4, podcast.mp3…</div>
+          </div>
+          <span class="folder-badge">Classé ✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <h2 class="section-title">Comment ça <span>marche ?</span></h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Choisis tes dossiers</h3>
+        <p>Bureau, Téléchargements, Images… Sélectionne ce que tu veux trier en un clic.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>L'IA analyse</h3>
+        <p>Claude AI lit le nom, le contenu et l'aperçu de chaque fichier pour le comprendre.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Tu valides & ranges</h3>
+        <p>Consulte le plan proposé, ajuste si besoin, puis clique sur "Ranger". C'est fait !</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing-section" id="pricing">
+    <h2 class="section-title">Des prix <span>simples</span></h2>
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <div class="free-badge">GRATUIT</div>
+        <div class="pricing-price">0<sup>€</sup></div>
+        <div class="pricing-per">pour commencer</div>
+        <ul class="pricing-features">
+          <li>3 crédits offerts à l'inscription</li>
+          <li>Jusqu'à 300 fichiers</li>
+          <li>Toutes les fonctionnalités</li>
+          <li>Détection des doublons</li>
+        </ul>
+        <a href="#download" class="btn-primary" style="width:100%;justify-content:center;">Commencer gratuit</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-label">⚡ Pack crédits</div>
+        <div class="pricing-price">2,99<sup>€</sup></div>
+        <div class="pricing-per">10 crédits = 1 000 fichiers</div>
+        <ul class="pricing-features">
+          <li>10 crédits supplémentaires</li>
+          <li>Jusqu'à 1 000 fichiers</li>
+          <li>Analyse visuelle des photos</li>
+          <li>Scan récursif des sous-dossiers</li>
+        </ul>
+        <a href="#download" class="btn-primary" style="width:100%;justify-content:center;">Acheter dans l'app</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <h2 class="section-title">Questions <span>fréquentes</span></h2>
+    <div class="faq">
+      <div class="faq-item">
+        <div class="faq-q">🔒 Est-ce que mes fichiers sont envoyés sur internet ?</div>
+        <div class="faq-a">Non. SortMyPC envoie uniquement les noms des fichiers et un petit aperçu texte/visuel à l'IA. Tes fichiers restent sur ton PC, rien n'est stocké.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">💾 Que se passe-t-il si je n'aime pas le résultat ?</div>
+        <div class="faq-a">Tu peux annuler le dernier rangement en un clic. L'application garde en mémoire les déplacements effectués et peut tout remettre comme avant.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">🖥️ Sur quels systèmes ça fonctionne ?</div>
+        <div class="faq-a">SortMyPC est disponible uniquement sur Windows 10 et Windows 11 pour le moment. Une version Mac est prévue.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">💳 Le paiement est-il sécurisé ?</div>
+        <div class="faq-a">Oui, les paiements sont gérés par Stripe, le leader mondial du paiement en ligne. Nous ne stockons aucune donnée bancaire.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="cta-section" id="download">
+    <h2>Ton PC propre en <em style="font-style:normal;color:#2979FF">30 secondes</em></h2>
+    <p>Télécharge SortMyPC gratuitement et commence à trier dès maintenant.</p>
+    <a href="https://github.com/tiypay/sortmypc-api/releases/latest/download/SortMyPC.exe" class="btn-primary" style="font-size:1.1rem;padding:1rem 2.5rem;">
+      ⬇️ Télécharger SortMyPC — Gratuit
+    </a>
+    <div class="platform-badge" style="margin:1rem auto 0;display:inline-flex;">🪟 Windows 10 / 11 · ~15 MB</div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 SortMyPC · <a href="mailto:valrp832@gmail.com">Contact</a> · Fait avec ❤️ en France</p>
+  </footer>
+
+</body>
+</html>
